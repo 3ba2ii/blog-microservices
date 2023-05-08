@@ -17,7 +17,13 @@ app.post('/events', async (req: Request, res: Response) => {
   const event = req.body;
   console.log('Event Received:', event.type);
   listeners.forEach((listenerURL: string) => {
-    axios.post(listenerURL, event);
+    axios.post(listenerURL, event).catch((err) => {
+      console.log(err.message);
+      res.send({
+        status: 'FAILED',
+        message: `Failed to send event to listener:${listenerURL}`,
+      });
+    });
   });
   res.send({ status: 'OK' });
 });

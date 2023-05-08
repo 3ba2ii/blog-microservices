@@ -42,7 +42,7 @@ app.post('/posts', (req: Request, res: Response): void => {
 
 app.post('/events', (req: Request, res: Response) => {
   console.log('Received Event:', req.body.type);
-  res.send({});
+  res.send({status: 'OK'});
 });
 app.use('/', (req: Request, res: Response): void => {
   res.send('Hello world!');

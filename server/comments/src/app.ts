@@ -1,8 +1,10 @@
 import express, { Application, Request, Response } from 'express';
 import { randomBytes } from 'crypto';
 import { urlencoded } from 'body-parser';
+import cors from 'cors';
 
 const app: Application = express();
+app.use(cors());
 
 app.use(urlencoded({ extended: true }));
 app.use(express.json());

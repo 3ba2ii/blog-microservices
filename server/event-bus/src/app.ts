@@ -1,8 +1,7 @@
-import express, { Application, Request, Response } from 'express';
-import { randomBytes } from 'crypto';
+import axios from 'axios';
 import { urlencoded } from 'body-parser';
 import cors from 'cors';
-import axios from 'axios';
+import express, { Application, Request, Response } from 'express';
 const app: Application = express();
 
 app.use(cors());
@@ -15,17 +14,13 @@ const listeners: Set<string> = new Set();
 
 app.post('/events', async (req: Request, res: Response) => {
   const event = req.body;
-  console.log('Event Received:', event.type);
-  listeners.forEach((listenerURL: string) => {
-    axios.post(listenerURL, event).catch((err) => {
-      console.log(err.message);
-      res.send({
-        status: 'FAILED',
-        message: `Failed to send event to listener:${listenerURL}`,
-      });
+  try {
+    listeners.forEach((listenerURL: string) => {
+      axios.post(listenerURL, event).catch(console.error);
     });
-  });
-  res.send({ status: 'OK' });
+  } catch (error) {
+    res.status(500).send({ status: 'FAILED', error: error });
+  }
 });
 
 app.post('/subscribe', (req: Request, res: Response) => {

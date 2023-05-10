@@ -19,6 +19,7 @@ const posts: Record<
     comments?: {
       id: string;
       content: string;
+      status?: string;
     }[];
   }
 > = {};
@@ -55,20 +56,35 @@ app.post('/events', (req: Request, res: Response) => {
       return res.status(400).send({ error: 'Comment content is required' });
     if (!data.postId)
       return res.status(400).send({ error: 'Comment postId is required' });
+    if (!data.status)
+      return res.status(400).send({ error: 'Status is required' });
+
     if (!(data.postId in posts))
       return res.status(404).send({ error: 'Post not found' });
-    const { postId, content, id } = data;
+    const { postId } = data;
     if (!posts[postId]?.comments) {
       posts[postId].comments = [];
     }
-    posts[postId].comments?.push({ id, content });
+    posts[postId].comments?.push(data);
+  } else if (type === 'CommentUpdated') {
+    if (!data.id || !data.content || !data.postId || !data.status) {
+      return res.status(400).send({ error: 'Missing information required' });
+    }
+    const { id, content, postId, status } = data;
+    const post = posts[postId];
+    if (!post) {
+      return res.status(404).send({ error: 'Post not found' });
+    }
+    const comment = post.comments?.find((comment) => comment.id === id);
+    if (!comment) {
+      return res.status(404).send({ error: 'Comment not found' });
+    }
 
-    console.log(posts[postId]);
+    posts[postId].comments = { id, content, postId, status } as any;
+
+    return res.status(200).send({ status: 'OK' });
   }
   res.status(200).send({ status: 'OK' });
-});
-app.use('/', (req: Request, res: Response): void => {
-  res.send('Hello world!');
 });
 
 app.listen(PORT, (): void => {

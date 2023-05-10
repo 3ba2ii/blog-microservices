@@ -45,28 +45,50 @@ app.post(
       return;
     }
 
-    await axios
+    const comments = commentsPerPostId?.[postId] || [];
+
+    comments.push({ id, content, status: 'PENDING' });
+
+    commentsPerPostId[postId] = comments;
+    //send event to event bus
+    axios
       .post('http://localhost:5555/events', {
         type: 'CommentCreated',
         data: {
           id,
           content,
           postId,
+          status: 'PENDING',
         },
       })
-      .catch((err) => {
-        console.log('🚀 ~ file: app.ts ~ line 149 ~ .then ~ err', err);
-      });
-    const comments = commentsPerPostId?.[postId] || [];
-    comments.push({ id, content });
-    commentsPerPostId[postId] = comments;
+      .catch(console.error);
     res.status(201).send(comments);
   }
 );
 
 app.post('/events', (req: Request, res: Response) => {
   console.log('Received Event:', req.body.type);
-  res.send({});
+  const { type, data } = req.body;
+  if (type === 'CommentModerated') {
+    const { id, postId, status, content } = data;
+    const comments = commentsPerPostId?.[postId] || [];
+    const comment = comments.find((comment: any) => comment.id === id);
+    if (comment) {
+      comment.status = status;
+      axios
+        .post('http://localhost:5555/events', {
+          type: 'CommentUpdated',
+          data: {
+            id,
+            postId,
+            status,
+            content,
+          },
+        })
+        .catch(console.error);
+    }
+  }
+  res.send({ status: 'OK' });
 });
 app.use('/', (req: Request, res: Response): void => {
   res.send('Hello world!');

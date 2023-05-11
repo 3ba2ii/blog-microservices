@@ -13,10 +13,10 @@ app.use(express.json());
 const PORT: number = 4000;
 
 const commentsPerPostId: Record<string, any> = {};
-
+const eventBusUrl: string = 'http://event-bus-srv:5555';
 axios
-  .post(`http://localhost:5555/subscribe`, {
-    url: `http://localhost:${PORT}/events`,
+  .post(`${eventBusUrl}/subscribe`, {
+    url: `http://comments-srv:${PORT}/events`,
   })
   .then((res) => {
     console.log(res.data);
@@ -52,7 +52,7 @@ app.post(
     commentsPerPostId[postId] = comments;
     //send event to event bus
     axios
-      .post('http://localhost:5555/events', {
+      .post(`${eventBusUrl}/events`, {
         type: 'CommentCreated',
         data: {
           id,
@@ -76,7 +76,7 @@ app.post('/events', (req: Request, res: Response) => {
     if (comment) {
       comment.status = status;
       axios
-        .post('http://localhost:5555/events', {
+        .post(`${eventBusUrl}/events`, {
           type: 'CommentUpdated',
           data: {
             id,

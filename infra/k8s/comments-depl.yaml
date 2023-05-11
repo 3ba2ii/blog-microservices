@@ -1,0 +1,51 @@
+apiVersion: apps/v1 # The deployment is inside apps/v1 API object
+kind: Deployment # The type of the object is Deployment
+metadata:
+  name: comments-depl # The name of the deployment
+spec:
+  replicas: 1 # Number of pods to create
+  selector:
+    matchLabels:
+      app: comments # The label of the pod
+  template:
+    metadata:
+      labels:
+        app: comments # The label of the pod
+    spec:
+      containers:
+        - name: comments # The name of the container
+          image: blogs/comments:latest # The latest image to use
+          imagePullPolicy: Never # Never pull the image from docker hub registry
+          ports:
+            - containerPort: 4000 # The port to expose
+---
+# Create the Cluster IP service for the event bus
+apiVersion: v1
+kind: Service
+metadata:
+  name: comments-clusterip-srv
+spec:
+  selector:
+    app: comments #what pods we allow access to this service
+  type: ClusterIP #type of service (Optional)
+  ports:
+    - name: comments
+      protocol: TCP
+      port: 4000
+      targetPort: 4000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: comments-srv
+spec:
+  type: NodePort
+  selector: #what pods to expose to the outside world
+    app: comments #try to find pods with this label and expose them (We have to add this label to the pods in comments-depl.yaml)
+  ports:
+    - name: comments #name of the port
+      protocol: TCP
+      port: 4000 #port for the node port service
+      targetPort: 4000 #port for the pod
+      nodePort: 31516 #port exposed to the outside world (Where client can access the service)

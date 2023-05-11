@@ -1,0 +1,51 @@
+apiVersion: apps/v1 # The deployment is inside apps/v1 API object
+kind: Deployment # The type of the object is Deployment
+metadata:
+  name: moderation-depl # The name of the deployment
+spec:
+  replicas: 1 # Number of pods to create
+  selector:
+    matchLabels:
+      app: moderation # The label of the pod
+  template:
+    metadata:
+      labels:
+        app: moderation # The label of the pod
+    spec:
+      containers:
+        - name: moderation # The name of the container
+          image: blogs/moderation:latest # The latest image to use
+          imagePullPolicy: Never # Never pull the image from docker hub registry
+          ports:
+            - containerPort: 3002 # The port to expose
+---
+# Create the Cluster IP service for the event bus
+apiVersion: v1
+kind: Service
+metadata:
+  name: moderation-clusterip-srv
+spec:
+  selector:
+    app: moderation #what pods we allow access to this service
+  type: ClusterIP #type of service (Optional)
+  ports:
+    - name: moderation
+      protocol: TCP
+      port: 3002
+      targetPort: 3002
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: moderation-srv
+spec:
+  type: NodePort
+  selector: #what pods to expose to the outside world
+    app: moderation #try to find pods with this label and expose them (We have to add this label to the pods in moderation-depl.yaml)
+  ports:
+    - name: moderation #name of the port
+      protocol: TCP
+      port: 3002 #port for the node port service
+      targetPort: 3002 #port for the pod
+      nodePort: 31517 #port exposed to the outside world (Where client can access the service)

@@ -11,10 +11,11 @@ app.use(urlencoded({ extended: true }));
 app.use(express.json());
 
 const PORT: number = 3002;
+const eventBusUrl: string = 'http://event-bus-srv:5555';
 
 axios
-  .post(`http://localhost:5555/subscribe`, {
-    url: `http://localhost:${PORT}/events`,
+  .post(`${eventBusUrl}/subscribe`, {
+    url: `http://moderation-srv:${PORT}/events`,
   })
   .then((res) => {
     console.log(res.data);
@@ -44,7 +45,7 @@ app.post('/events', async (req: Request, res: Response) => {
       content,
     };
     //send a request to event bus to update the status of the comment (that will be redirected to the comment service)
-    await axios.post('http://localhost:5555/events', {
+    await axios.post(`${eventBusUrl}/events`, {
       type: 'CommentModerated',
       data: response,
     });

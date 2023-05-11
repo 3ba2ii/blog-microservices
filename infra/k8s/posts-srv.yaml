@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: posts-srv
+spec:
+  type: NodePort
+  selector: #what pods to expose to the outside world
+    app: posts #try to find pods with this label and expose them (We have to add this label to the pods in posts-depl.yaml)
+  ports:
+    - name: posts #name of the port
+      protocol: TCP
+      port: 3000 #port for the node port service
+      targetPort: 3000 #port for the pod
+      nodePort: 31515 #port exposed to the outside world (Where client can access the service)

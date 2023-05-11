@@ -16,3 +16,5 @@ spec:
         - name: posts # The name of the container
           image: blog/posts:latest # The latest image to use
           imagePullPolicy: Never # Never pull the image from docker hub registry
+          ports:
+            - containerPort: 4000 # The port to expose

@@ -1,0 +1,51 @@
+apiVersion: apps/v1 # The deployment is inside apps/v1 API object
+kind: Deployment # The type of the object is Deployment
+metadata:
+  name: query-depl # The name of the deployment
+spec:
+  replicas: 1 # Number of pods to create
+  selector:
+    matchLabels:
+      app: query # The label of the pod
+  template:
+    metadata:
+      labels:
+        app: query # The label of the pod
+    spec:
+      containers:
+        - name: query # The name of the container
+          image: blogs/query:latest # The latest image to use
+          imagePullPolicy: Never # Never pull the image from docker hub registry
+          ports:
+            - containerPort: 6000 # The port to expose
+---
+# Create the Cluster IP service for the event bus
+apiVersion: v1
+kind: Service
+metadata:
+  name: query-clusterip-srv
+spec:
+  selector:
+    app: query #what pods we allow access to this service
+  type: ClusterIP #type of service (Optional)
+  ports:
+    - name: query
+      protocol: TCP
+      port: 6000
+      targetPort: 6000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: query-srv
+spec:
+  type: NodePort
+  selector: #what pods to expose to the outside world
+    app: query #try to find pods with this label and expose them (We have to add this label to the pods in query-depl.yaml)
+  ports:
+    - name: query #name of the port
+      protocol: TCP
+      port: 6000 #port for the node port service
+      targetPort: 6000 #port for the pod
+      nodePort: 31518 #port exposed to the outside world (Where client can access the service)

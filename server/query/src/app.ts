@@ -23,10 +23,11 @@ const posts: Record<
     }[];
   }
 > = {};
+const eventBusUrl: string = 'http://event-bus-srv:5555';
 
 axios
-  .post('http://localhost:5555/subscribe', {
-    url: `http://localhost:${PORT}/events`,
+  .post(`${eventBusUrl}/subscribe`, {
+    url: `http://query-srv:${PORT}/events`,
   })
   .then((res) => {
     console.log(res.data);

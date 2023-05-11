@@ -33,10 +33,13 @@ axios
     console.log(res.data);
   });
 app.get('/posts', (_req: Request, res: Response): void => {
+  console.log(`🚀 Just testing skaffold2`);
+
   res.send(posts);
 });
 
 app.post('/events', (req: Request, res: Response) => {
+  console.log(`🚀 Just testing skaffold2`);
   console.log('Received Event:', req.body.type);
   const { type, data } = req.body;
   if (type === 'PostCreated') {
@@ -89,5 +92,6 @@ app.post('/events', (req: Request, res: Response) => {
 });
 
 app.listen(PORT, (): void => {
+  console.log('QUERY SERVICE');
   console.log('SERVER IS UP ON PORT:', PORT);
 });

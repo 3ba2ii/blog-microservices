@@ -1,0 +1,18 @@
+apiVersion: apps/v1 # The deployment is inside apps/v1 API object
+kind: Deployment # The type of the object is Deployment
+metadata:
+  name: posts-depl # The name of the deployment
+spec:
+  replicas: 1 # Number of pods to create
+  selector:
+    matchLabels:
+      app: posts # The label of the pod
+  template:
+    metadata:
+      labels:
+        app: posts # The label of the pod
+    spec:
+      containers:
+        - name: posts # The name of the container
+          image: blog/posts:latest # The latest image to use
+          imagePullPolicy: Never # Never pull the image from docker hub registry

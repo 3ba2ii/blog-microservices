@@ -31,7 +31,7 @@ app.get('/posts/:id/comments', (req: Request, res: Response): void => {
   res.status(201).send(comments);
 });
 app.post(
-  '/posts/:id/comments',
+  '/posts/:id/comments/create',
   async (req: Request, res: Response): Promise<void> => {
     const id = randomBytes(4).toString('hex');
     const { content } = req.body;

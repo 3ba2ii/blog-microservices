@@ -26,7 +26,7 @@ axios
 app.get('/posts', (req: Request, res: Response): void => {
   res.send(posts);
 });
-app.post('/posts', (req: Request, res: Response): void => {
+app.post('/posts/create', (req: Request, res: Response): void => {
   const id = randomBytes(4).toString('hex');
   const { title } = req.body;
   posts[id] = {

@@ -1,35 +1,36 @@
 apiVersion: apps/v1 # The deployment is inside apps/v1 API object
 kind: Deployment # The type of the object is Deployment
 metadata:
-  name: posts-depl # The name of the deployment
+  name: event-bus-depl # The name of the deployment
 spec:
   replicas: 1 # Number of pods to create
   selector:
     matchLabels:
-      app: posts # The label of the pod
+      app: event-bus # The label of the pod
   template:
     metadata:
       labels:
-        app: posts # The label of the pod
+        app: event-bus # The label of the pod
     spec:
       containers:
-        - name: posts # The name of the container
-          image: blogs/posts:latest # The latest image to use
+        - name: event-bus # The name of the container
+          image: blogs/event-bus:latest # The latest image to use
           imagePullPolicy: Never # Never pull the image from docker hub registry
           ports:
-            - containerPort: 4000 # The port to expose
+            - containerPort: 5555 # The port to expose
+
 ---
 # Create the Cluster IP service for the event bus
 apiVersion: v1
 kind: Service
 metadata:
-  name: posts-clusterip-srv
+  name: event-bus-srv
 spec:
   selector:
-    app: posts #what pods we allow access to this service
+    app: event-bus #what pods we allow access to this service
   type: ClusterIP #type of service (Optional)
   ports:
     - name: event-bus
       protocol: TCP
-      port: 3000
-      targetPort: 3000
+      port: 5555
+      targetPort: 5555

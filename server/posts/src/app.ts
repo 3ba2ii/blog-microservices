@@ -13,13 +13,16 @@ const PORT: number = 3000;
 
 const posts: Record<string, any> = {};
 
+const eventBusUrl: string = 'http://event-bus-srv:5555';
+
 axios
-  .post('http://localhost:5555/subscribe', {
-    url: 'http://localhost:3000/events',
+  .post(`${eventBusUrl}/subscribe`, {
+    url: 'http://posts-clusterip-srv:3000/events',
   })
   .then((res) => {
     console.log(res.data);
-  });
+  })
+  .catch(console.error);
 app.get('/posts', (req: Request, res: Response): void => {
   res.send(posts);
 });
@@ -30,7 +33,7 @@ app.post('/posts', (req: Request, res: Response): void => {
     id,
     title,
   };
-  axios.post('http://localhost:5555/events', {
+  axios.post(`${eventBusUrl}/events`, {
     type: 'PostCreated',
     data: {
       id,
@@ -42,7 +45,7 @@ app.post('/posts', (req: Request, res: Response): void => {
 
 app.post('/events', (req: Request, res: Response) => {
   console.log('Received Event:', req.body.type);
-  res.send({status: 'OK'});
+  res.send({ status: 'OK' });
 });
 app.use('/', (req: Request, res: Response): void => {
   res.send('Hello world!');
